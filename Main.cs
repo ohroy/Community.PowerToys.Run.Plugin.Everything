@@ -141,27 +141,27 @@ namespace Community.PowerToys.Run.Plugin.Everything
 
 
 
-        private List<ContextMenu> GetDefaultContextMenu()
+        private List<MyContextMenu> GetDefaultContextMenu()
         {
-            List<ContextMenu> defaultContextMenus = new List<ContextMenu>();
-            ContextMenu openFolderContextMenu = new ContextMenu
+            List<MyContextMenu> defaultContextMenus = new List<MyContextMenu>();
+            MyContextMenu openFolderContextMenu = new MyContextMenu
             {
                 Name = Resources.wox_plugin_everything_open_containing_folder,
                 Command = "explorer.exe",
                 Argument = " /select,\"{path}\"",
-                ImagePath = "Images\\folder.png"
+                Glyph = "\xE8B7" // Folder
             };
 
             defaultContextMenus.Add(openFolderContextMenu);
 
             string editorPath = string.IsNullOrEmpty(_settings.EditorPath) ? "notepad.exe" : _settings.EditorPath;
 
-            ContextMenu openWithEditorContextMenu = new ContextMenu
+            MyContextMenu openWithEditorContextMenu = new MyContextMenu
             {
                 Name = string.Format(Resources.wox_plugin_everything_open_with_editor, Path.GetFileNameWithoutExtension(editorPath)),
                 Command = editorPath,
                 Argument = " \"{path}\"",
-                ImagePath = editorPath
+                Glyph = "\xE70B"
             };
 
             defaultContextMenus.Add(openWithEditorContextMenu);
@@ -188,8 +188,8 @@ namespace Community.PowerToys.Run.Plugin.Everything
             _api.Load(sdkPath);
         }
 
-        public string Name { get; }
-        public string Description { get; }
+        public string Name { get => GetTranslatedPluginTitle(); }
+        public string Description { get => GetTranslatedPluginDescription(); }
 
         private static string CpuType()
         {
@@ -214,22 +214,22 @@ namespace Community.PowerToys.Run.Plugin.Everything
             return Resources.wox_plugin_everything_plugin_description;
         }
 
-        public List<Result> LoadContextMenus(Result selectedResult)
+        public List<ContextMenuResult> LoadContextMenus(Result selectedResult)
         {
             SearchResult record = selectedResult.ContextData as SearchResult;
-            List<Result> contextMenus = new List<Result>();
+            var contextMenus = new List<ContextMenuResult>();
             if (record == null) return contextMenus;
 
-            List<ContextMenu> availableContextMenus = new List<ContextMenu>();
+            List<MyContextMenu> availableContextMenus = new List<MyContextMenu>();
             availableContextMenus.AddRange(GetDefaultContextMenu());
             availableContextMenus.AddRange(_settings.ContextMenus);
 
             if (record.Type == ResultType.File)
             {
-                foreach (ContextMenu contextMenu in availableContextMenus)
+                foreach (MyContextMenu contextMenu in availableContextMenus)
                 {
                     var menu = contextMenu;
-                    contextMenus.Add(new Result
+                    contextMenus.Add(new ContextMenuResult
                     {
                         Title = contextMenu.Name,
                         Action = _ =>
@@ -246,13 +246,14 @@ namespace Community.PowerToys.Run.Plugin.Everything
                             }
                             return true;
                         },
-                        IcoPath = contextMenu.ImagePath
+                        Glyph = contextMenu.Glyph,
+                        FontFamily = "Segoe MDL2 Assets",
                     });
                 }
             }
 
-            var icoPath = (record.Type == ResultType.File) ? "Images\\file.png" : "Images\\folder.png";
-            contextMenus.Add(new Result
+            var icoPath = "\xE8C8";
+            contextMenus.Add(new ContextMenuResult
             {
                 Title = Resources.wox_plugin_everything_copy_path,
                 Action = (context) =>
@@ -260,10 +261,11 @@ namespace Community.PowerToys.Run.Plugin.Everything
                     Clipboard.SetText(record.FullPath);
                     return true;
                 },
-                IcoPath = icoPath
+                Glyph = icoPath,
+                FontFamily = "Segoe MDL2 Assets",
             });
 
-            contextMenus.Add(new Result
+            contextMenus.Add(new ContextMenuResult
             {
                 Title = Resources.wox_plugin_everything_copy,
                 Action = (context) =>
@@ -271,11 +273,12 @@ namespace Community.PowerToys.Run.Plugin.Everything
                     Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { record.FullPath });
                     return true;
                 },
-                IcoPath = icoPath
+                Glyph = "\xf413", // copy to
+                FontFamily = "Segoe MDL2 Assets",
             });
 
             if (record.Type == ResultType.File || record.Type == ResultType.Folder)
-                contextMenus.Add(new Result
+                contextMenus.Add(new ContextMenuResult
                 {
                     Title = Resources.wox_plugin_everything_delete,
                     Action = (context) =>
@@ -295,7 +298,8 @@ namespace Community.PowerToys.Run.Plugin.Everything
 
                         return true;
                     },
-                    IcoPath = icoPath
+                    Glyph = "\xE74D",
+                    FontFamily = "Segoe MDL2 Assets",
                 });
 
             return contextMenus;
@@ -304,9 +308,5 @@ namespace Community.PowerToys.Run.Plugin.Everything
 
         public IEnumerable<PluginAdditionalOption> AdditionalOptions { get; }
 
-        List<ContextMenuResult> IContextMenu.LoadContextMenus(Result selectedResult)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

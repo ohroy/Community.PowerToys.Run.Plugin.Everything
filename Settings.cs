@@ -11,18 +11,21 @@ namespace Wox.Plugin.Everything
 
         public string EditorPath { get; set; } = "";
 
-        public List<ContextMenu> ContextMenus = new List<ContextMenu>();
+        public List<MyContextMenu> ContextMenus = new List<MyContextMenu>();
 
         public int MaxSearchCount { get; set; } = DefaultMaxSearchCount;
 
         public bool UseLocationAsWorkingDir { get; set; } = false;
     }
 
-    public class ContextMenu
+    /// <summary>
+    /// Context Menu
+    /// </summary>
+    public class MyContextMenu
     {
         public string Name { get; set; }
         public string Command { get; set; }
         public string Argument { get; set; }
-        public string ImagePath { get; set; }
+        public string Glyph { get; set; }
     }
 }
