@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Documents;
+using Wox.Plugin.Everything.Everything;
 
-namespace Wox.Plugin.Everything.Everything
+namespace Community.PowerToys.Run.Plugin.Everything.Everything
 {
     public class SearchResult
     {

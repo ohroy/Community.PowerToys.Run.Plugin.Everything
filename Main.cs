@@ -1,22 +1,22 @@
 ﻿using System;
+using System.Windows;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows;
-using System.Windows.Controls;
-using NLog;
-using Wox.Infrastructure;
-using Wox.Infrastructure.Logger;
+using Community.PowerToys.Run.Plugin.Everything.Everything;
+using Community.PowerToys.Run.Plugin.Everything.Properties;
+using Microsoft.PowerToys.Settings.UI.Library;
 using Wox.Infrastructure.Storage;
+using Wox.Plugin;
+using Wox.Plugin.Everything;
 using Wox.Plugin.Everything.Everything;
+using Wox.Plugin.Logger;
 
-namespace Wox.Plugin.Everything
+namespace Community.PowerToys.Run.Plugin.Everything
 {
-    public class Main : IPlugin, ISettingProvider, IPluginI18n, IContextMenu, ISavable
+    public class Main : IPlugin, IPluginI18n, IContextMenu, ISavable
     {
 
         public const string DLL = "Everything.dll";
@@ -29,7 +29,6 @@ namespace Wox.Plugin.Everything
         private Settings _settings;
         private PluginJsonStorage<Settings> _storage;
         private CancellationTokenSource _updateSource;
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public void Save()
         {
@@ -41,7 +40,7 @@ namespace Wox.Plugin.Everything
             if (_updateSource != null && !_updateSource.IsCancellationRequested)
             {
                 _updateSource.Cancel();
-                Logger.WoxDebug($"cancel init {_updateSource.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}");
+                Log.Debug($"cancel init {_updateSource.Token.GetHashCode()} {Thread.CurrentThread.ManagedThreadId} {query.RawQuery}", GetType());
                 _updateSource.Dispose();
             }
             var source = new CancellationTokenSource();
@@ -70,21 +69,21 @@ namespace Wox.Plugin.Everything
                 {
                     results.Add(new Result
                     {
-                        Title = _context.API.GetTranslation("wox_plugin_everything_is_not_running"),
+                        Title = Resources.wox_plugin_everything_is_not_running,
                         IcoPath = "Images\\warning.png"
                     });
                 }
                 catch (Exception e)
                 {
-                    Logger.WoxError("Query Error", e);
+                    Log.Error("Query Error"+e,GetType());
                     results.Add(new Result
                     {
-                        Title = _context.API.GetTranslation("wox_plugin_everything_query_error"),
+                        Title = Resources.wox_plugin_everything_query_error,
                         SubTitle = e.Message,
                         Action = _ =>
                         {
                             Clipboard.SetText(e.Message + "\r\n" + e.StackTrace);
-                            _context.API.ShowMsg(_context.API.GetTranslation("wox_plugin_everything_copied"), null, string.Empty);
+                            _context.API.ShowMsg(Resources.wox_plugin_everything_copied, null, string.Empty);
                             return false;
                         },
                         IcoPath = "Images\\error.png"
@@ -147,7 +146,7 @@ namespace Wox.Plugin.Everything
             List<ContextMenu> defaultContextMenus = new List<ContextMenu>();
             ContextMenu openFolderContextMenu = new ContextMenu
             {
-                Name = _context.API.GetTranslation("wox_plugin_everything_open_containing_folder"),
+                Name = Resources.wox_plugin_everything_open_containing_folder,
                 Command = "explorer.exe",
                 Argument = " /select,\"{path}\"",
                 ImagePath = "Images\\folder.png"
@@ -159,7 +158,7 @@ namespace Wox.Plugin.Everything
 
             ContextMenu openWithEditorContextMenu = new ContextMenu
             {
-                Name = string.Format(_context.API.GetTranslation("wox_plugin_everything_open_with_editor"), Path.GetFileNameWithoutExtension(editorPath)),
+                Name = string.Format(Resources.wox_plugin_everything_open_with_editor, Path.GetFileNameWithoutExtension(editorPath)),
                 Command = editorPath,
                 Argument = " \"{path}\"",
                 ImagePath = editorPath
@@ -184,10 +183,13 @@ namespace Wox.Plugin.Everything
             const string sdk = "EverythingSDK";
             var sdkDirectory = Path.Combine(pluginDirectory, sdk, CpuType());
             var sdkPath = Path.Combine(sdkDirectory, DLL);
-            Logger.WoxDebug($"sdk path <{sdkPath}>");
-            Constant.EverythingSDKPath = sdkPath;
+            Log.Debug($"sdk path <{sdkPath}>",GetType());
+            // Constant.EverythingSDKPath = sdkPath;
             _api.Load(sdkPath);
         }
+
+        public string Name { get; }
+        public string Description { get; }
 
         private static string CpuType()
         {
@@ -204,12 +206,12 @@ namespace Wox.Plugin.Everything
 
         public string GetTranslatedPluginTitle()
         {
-            return _context.API.GetTranslation("wox_plugin_everything_plugin_name");
+            return Resources.wox_plugin_everything_plugin_name;
         }
 
         public string GetTranslatedPluginDescription()
         {
-            return _context.API.GetTranslation("wox_plugin_everything_plugin_description");
+            return Resources.wox_plugin_everything_plugin_description;
         }
 
         public List<Result> LoadContextMenus(Result selectedResult)
@@ -239,7 +241,7 @@ namespace Wox.Plugin.Everything
                             }
                             catch
                             {
-                                _context.API.ShowMsg(string.Format(_context.API.GetTranslation("wox_plugin_everything_canot_start"), record.FullPath), string.Empty, string.Empty);
+                                _context.API.ShowMsg(string.Format(Resources.wox_plugin_everything_canot_start, record.FullPath), string.Empty, string.Empty);
                                 return false;
                             }
                             return true;
@@ -252,7 +254,7 @@ namespace Wox.Plugin.Everything
             var icoPath = (record.Type == ResultType.File) ? "Images\\file.png" : "Images\\folder.png";
             contextMenus.Add(new Result
             {
-                Title = _context.API.GetTranslation("wox_plugin_everything_copy_path"),
+                Title = Resources.wox_plugin_everything_copy_path,
                 Action = (context) =>
                 {
                     Clipboard.SetText(record.FullPath);
@@ -263,7 +265,7 @@ namespace Wox.Plugin.Everything
 
             contextMenus.Add(new Result
             {
-                Title = _context.API.GetTranslation("wox_plugin_everything_copy"),
+                Title = Resources.wox_plugin_everything_copy,
                 Action = (context) =>
                 {
                     Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { record.FullPath });
@@ -275,7 +277,7 @@ namespace Wox.Plugin.Everything
             if (record.Type == ResultType.File || record.Type == ResultType.Folder)
                 contextMenus.Add(new Result
                 {
-                    Title = _context.API.GetTranslation("wox_plugin_everything_delete"),
+                    Title = Resources.wox_plugin_everything_delete,
                     Action = (context) =>
                     {
                         try
@@ -287,7 +289,7 @@ namespace Wox.Plugin.Everything
                         }
                         catch
                         {
-                            _context.API.ShowMsg(string.Format(_context.API.GetTranslation("wox_plugin_everything_canot_delete"), record.FullPath), string.Empty, string.Empty);
+                            _context.API.ShowMsg(string.Format(Resources.wox_plugin_everything_canot_delete, record.FullPath), string.Empty, string.Empty);
                             return false;
                         }
 
@@ -299,9 +301,12 @@ namespace Wox.Plugin.Everything
             return contextMenus;
         }
 
-        public Control CreateSettingPanel()
+
+        public IEnumerable<PluginAdditionalOption> AdditionalOptions { get; }
+
+        List<ContextMenuResult> IContextMenu.LoadContextMenus(Result selectedResult)
         {
-            return new EverythingSettings(_settings);
+            throw new NotImplementedException();
         }
     }
 }

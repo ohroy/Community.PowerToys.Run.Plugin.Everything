@@ -1,12 +1,14 @@
 {
-    "ID":"D2D2C23B084D411DB66FE0C79D6C2A6E",
-    "ActionKeyword":"*",
+    "ID":"961a19aa-73e3-41c5-87b7-5609e86e4635",
+    "ActionKeyword": "",
+    "IsGlobal": true,
     "Name":"Everything",
     "Description":"Search Everything",
-    "Author":"Wox",
+    "Author":"rozbo",
     "Version":"1.1.0",
     "Language":"csharp",
-    "Website":"http://www.wox.one",
-    "IcoPath":"Images\\find.png",
-    "ExecuteFileName":"Wox.Plugin.Everything.dll",
+    "Website":"https://github.com/rozbo/Community.PowerToys.Run.Plugin.Everything",
+    "IcoPathDark":"Images\\find.png",
+    "IcoPathLight":"Images\\find.png",
+    "ExecuteFileName":"Community.PowerToys.Run.Plugin.Everything.dll"
 }

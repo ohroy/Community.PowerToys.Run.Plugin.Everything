@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using Wox.Infrastructure.Logger;
+using Community.PowerToys.Run.Plugin.Everything.Everything;
 using Wox.Plugin.Everything.Everything.Exceptions;
 
 namespace Wox.Plugin.Everything.Everything

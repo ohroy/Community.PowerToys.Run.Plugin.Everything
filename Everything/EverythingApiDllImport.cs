@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Community.PowerToys.Run.Plugin.Everything;
 
 namespace Wox.Plugin.Everything.Everything
 {
